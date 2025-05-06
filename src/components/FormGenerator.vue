@@ -1,67 +1,91 @@
 <template>
   <form class="form-generator">
-    <my-input name="email" type="text" v-model="email" placeholder="Email" />
-    <p>{{ email }}</p>
-
-    <my-select :options="optionsList" v-model="valueSelect" />
-    <p>{{ valueSelect }}</p>
-
-    <my-checkbox
-      label="Checkbox "
-      id="checkBox"
-      name="checkBox"
-      value="I like it"
-      v-model:checked="checkBox"
-    />
-    {{ checkBox }}
-
-    <my-textarea placeholder="Text area" name="text-area" v-model="textarea" />
-    <p>{{ textarea }}</p>
+    <div v-for="(field, key) in fields" :key="key" class="form-generator__field">
+      <label :for="key" class="form-generator__label">{{ field.label }}</label>
+      <component
+        :is="field.type === 'select' ? 'select' : field.type"
+        :id="key"
+        v-model="model[key]"
+        v-bind="field.type === 'select' ? {} : field.attributes"
+        class="form-generator__input"
+      >
+        <option v-if="field.type === 'select'" v-for="option in field.options" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
+        <slot :name="key" :value="model[key]" />
+      </component>
+    </div>
+    <div class="form-generator__actions">
+      <button type="button" @click="handleSave" class="form-generator__button form-generator__button--save">Сохранить</button>
+      <button type="button" @click="handleCancel" class="form-generator__button form-generator__button--cancel">Отмена</button>
+    </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import MyInput from "@/components/UI/MyInput.vue";
-import MySelect from "@/components/UI/MySelect.vue";
-import MyCheckbox from "@/components/UI/MyCheckbox.vue";
-import MyTextarea from "@/components/UI/MyTextarea.vue";
+import { defineProps, defineEmits, reactive } from 'vue';
 
-import { ref } from "vue";
-
-const email = ref("");
-
-const textarea = ref("");
-
-const checkBox = ref(true);
-
-const valueSelect = ref("");
-
-interface optionsProps {
-  value: String;
-  name: String;
-  key: PropertyKey;
-}
-
-let optionsList: Array<optionsProps> = [
-  {
-    value: "Up",
-    name: "UpSort",
-    key: 1,
+const props = defineProps({
+  fields: {
+    type: Object,
+    required: true,
   },
-  {
-    value: "Down",
-    name: "DownSort",
-    key: 2,
+  initialModel: {
+    type: Object,
+    default: () => ({}),
   },
-];
+});
+
+const emit = defineEmits(['save', 'cancel']);
+
+const model = reactive({ ...props.initialModel });
+
+const handleSave = () => {
+  emit('save', model);
+};
+
+const handleCancel = () => {
+  emit('cancel');
+};
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .form-generator {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  justify-content: center;
-  align-items: start;
-}
+  &__field {
+    margin-bottom: 1rem;
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__button {
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    border: none;
+    cursor: pointer;
+
+    &--save {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    &--cancel {
+      background-color: #f44336;
+      color: white;
+    }
+  }
+}  
 </style>

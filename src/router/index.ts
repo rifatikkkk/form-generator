@@ -1,25 +1,15 @@
-import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import Form1 from '../views/Form1.vue';
+import Form2 from '../views/Form2.vue';
+
+const routes = [
+  { path: '/form1', component: Form1 },
+  { path: '/form2', component: Form2 },
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomeView,
-    },
-    {
-      path: "/about",
-      name: "about",
-      component: () => import("../views/AboutView.vue"),
-    },
-    {
-      path: "/register",
-      name: "register",
-      component: () => import("@/views/RegistrationForm.vue"),
-    },
-  ],
+  history: createWebHistory(),
+  routes,
 });
 
 export default router;
